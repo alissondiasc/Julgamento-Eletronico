@@ -1,6 +1,7 @@
 package br.com.julgamento.service;
 
 import br.com.julgamento.client.UsuarioClient;
+import br.com.julgamento.domain.Usuario;
 import br.com.julgamento.repository.UsuarioRepository;
 import br.com.julgamento.service.impl.UsuarioServiceImpl;
 import br.com.julgamento.service.mapper.UsuarioMapper;
@@ -11,7 +12,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,6 +36,8 @@ public class UsuarioServiceImplTest {
     @Mock
     private UsuarioDTO usuarioDTO;
     @Mock
+    private Pageable pageable;
+    @Mock
     private ResponseClientDTO responseClientDTOValid;
     @Mock
     private ResponseClientDTO responseClientDTOInvalid;
@@ -38,6 +45,7 @@ public class UsuarioServiceImplTest {
 
     @Before
     public void setUp(){
+        pageable = PageRequest.of(0, 10, Sort.Direction.valueOf("ASC"), "nome");
         responseClientDTOValid = ResponseClientDTO.builder()
                 .status("ABLE_TO_VOTE")
                 .build();
@@ -68,6 +76,16 @@ public class UsuarioServiceImplTest {
         String retorno = usuarioSevice.cadastrar(this.usuarioDTO);
         assertThat(retorno).isNotNull();
         assertEquals(retorno, "Usuario criado com sucesso.");
+    }
+
+    @Test
+    public void obterUsuarioTest(){
+
+        when(usuarioRepository.findAll(pageable)).thenReturn(new PageImpl<>(Arrays.asList(Usuario.builder().build()), pageable, 1 ));
+        when(usuarioMapper.pageEntidadeParaPageDTO(new PageImpl<>(Arrays.asList(Usuario.builder().build()), pageable, 1 ))).thenReturn(new PageImpl<>(Arrays.asList(UsuarioDTO.builder().build()), pageable, 1 ));
+        Page<UsuarioDTO> retorno = usuarioSevice.obterUsuario(pageable);
+        assertThat(retorno).isNotNull();
+        assertEquals(retorno.getContent().size(), 1);
     }
 
 
