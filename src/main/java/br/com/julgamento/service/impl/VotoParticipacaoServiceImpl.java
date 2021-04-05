@@ -33,14 +33,14 @@ public class VotoParticipacaoServiceImpl implements VotoParticipacaoService {
     private SessaoJulgamentoService sessaoJulgamentoService;
 
     @Override
-    public ResponseEntity<String> realizarVotoSessaoJulgamento(VotoParticipacaoDTO votoParticipacaoDTO) {
+    public String realizarVotoSessaoJulgamento(VotoParticipacaoDTO votoParticipacaoDTO) {
         try {
             verificarSessaoEncerrada(votoParticipacaoDTO);
             verificarVotoUnico(votoParticipacaoDTO);
             votoParticipacaoRepository.save(votoParticipacaoMapper.dtoParaEntidade(votoParticipacaoDTO));
-            return ResponseEntity.ok("Operação Relaizada com sucesso.");
+            return "Operação Relaizada com sucesso.";
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return e.getMessage();
         }
     }
 
@@ -63,6 +63,11 @@ public class VotoParticipacaoServiceImpl implements VotoParticipacaoService {
         return ResultadoVotacao.E;
     }
 
+    @Override
+    public Page<VotoParticipacaoDTO> obterVotos(Pageable pageable) {
+        return votoParticipacaoMapper.pageEntidadeParaPageDTO(votoParticipacaoRepository.findAll(pageable));
+    }
+
     public void verificarSessaoEncerrada(VotoParticipacaoDTO votoParticipacaoDTO) throws Exception {
         SessaoJulgamento sessaoJulgamento = sessaoJulgamentoService.obterSessaoJulgamentoPorId(votoParticipacaoDTO.getIdJulgamento());
         LocalDateTime dataHoraAtual = LocalDateTime.now();
@@ -79,8 +84,5 @@ public class VotoParticipacaoServiceImpl implements VotoParticipacaoService {
         }
     }
 
-    @Override
-    public Page<VotoParticipacaoDTO> obterVotos(Pageable pageable) {
-        return votoParticipacaoMapper.pageEntidadeParaPageDTO(votoParticipacaoRepository.findAll(pageable));
-    }
+
 }

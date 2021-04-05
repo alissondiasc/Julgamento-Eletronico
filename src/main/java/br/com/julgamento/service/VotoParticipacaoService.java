@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface VotoParticipacaoService {
 
-    ResponseEntity<String> realizarVotoSessaoJulgamento(VotoParticipacaoDTO votoParticipacaoDTO);
+    String realizarVotoSessaoJulgamento(VotoParticipacaoDTO votoParticipacaoDTO);
 
     ResultadoVotacao apurarVotosSessaoJulgamento(String idSessaoJulgamento);
 
